@@ -29,3 +29,5 @@ Mac OS may ask you to grant access of your Apple Photo Library to the
 Terminal app.
 
 ![Sample Image](image/histogram.png)
+
+The tool provides histogram of camera models, lens models, focal lengths and ISO. 
