@@ -140,6 +140,8 @@ def plot(df):
   axs[1, 1].set_title('ISO 0~3200 (excl. phones)')
   axs[1, 1].set_xlabel('ISO')
   axs[1, 1].set_ylabel('Count')
+  axs[1, 1].xaxis.set_major_locator(ticker.FixedLocator([100, 200, 400, 640, 800, 1280, 1600, 3200]))
+  axs[1, 1].set_xticklabels(axs[1, 1].get_xticks(), rotation=45)
 
   # 5. Trend of counting over time by camera_model
   df.set_index('date_original', inplace=True)
