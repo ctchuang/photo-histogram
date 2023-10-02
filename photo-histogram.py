@@ -13,35 +13,47 @@ import matplotlib.pyplot as plt
 _PHOTO_LIBRARY_PATH = os.path.expanduser('~/Pictures/Photos Library.photoslibrary/originals/')
 _CACHE_DB = "/tmp/photo-histogram.db"
 _CAMERA_CROP_FACTORS = [
+  # Full-Frame
+  (re.compile(r'EOS\s+\d+D'), 1.0),
+  (re.compile(r'EOS\s+RP'), 1.0),
+  (re.compile(r'EOS\s+R\d+'), 1.0),
   # APS-C
   (re.compile(r'X-T\d+'), 1.5),
   (re.compile(r'Sony A6\d+'), 1.5),
+  (re.compile(r'Canon EOS Kiss Digital N'), 1.6),
   # M43
   (re.compile(r'Panasonic GH5'), 2.0),
-  # iPhone
-  (re.compile(r'iPhone 13 Pro'), 4.56),
-  # GRD
-  (re.compile(r'GR DIGITAL \d+'), 4.5),
-  # ... Add other camera models and their crop factors as needed
+  (re.compile(r'D-LUX \(Typ 109\)'), 2.0),
+  # Sub 1-inch
+  (re.compile(r'GR DIGITAL \d+'), 4.5),  # 1/1.7" CCD
+  (re.compile(r'PowerShot S80'), 4.8),  # 1/1.8" CCD
+  (re.compile(r'IXUS 200'), 5.6),  # 1/2.3" CCD
+  (re.compile(r'IXUS 860'), 6.0), # 1/2.5" CCD
+  (re.compile(r'IXUS v'), 6.56),  # 1/2.7" CCD
+  (re.compile(r'E2500'), 6.56),
+  # ... Add your own camera models and crop factors as needed.
 ]
 
 
 def get_crop_factor(camera_model: str) -> float:
   for pattern, factor in _CAMERA_CROP_FACTORS:
-    if pattern.match(camera_model):
-      return value
+    if pattern.search(camera_model):
+      return factor
   print('WARNING: unknown crop factor for camera model: ', camera_model)
   return 1.0
+
+
+def convert_focal_length(row):
+  if pd.isna(row['focal_length_x100']) or pd.isna(row['camera_model']):
+    return 0
+  crop_factor = get_crop_factor(row['camera_model'])
+  return int(row['focal_length_x100'] * crop_factor / 100.0)
 
 
 def get_exif(file_path: str) -> dict:
   cmd = ["exiftool", "-j", file_path]
   result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
   return json.loads(result.stdout)[0]
-
-
-def populate_data(metadata: List[Tuple[datetime, str, str, str, float, int, int]]) -> Tuple:
-  pass
 
 
 def get_exif_metadata(root_path: str) -> List[Tuple[datetime, str, str, str, float, int, int]]:
@@ -92,7 +104,7 @@ def get_exif_metadata(root_path: str) -> List[Tuple[datetime, str, str, str, flo
 
 def plot(df):
   df['camera_with_maker'] = df['maker'] + ' ' + df['camera_model']
-  non_phone_df = df[~df['camera_with_maker'].str.contains(r'(phone|pad|pixel)', case=False,
+  non_phone_df = df[~df['camera_with_maker'].str.contains(r'(phone|pad|pixel|samsung|nexus|htc)', case=False,
                                                           na=False, regex=True)]
 
   # Create a single figure with 3 rows and 2 columns of subplots
@@ -105,24 +117,24 @@ def plot(df):
   axs[0, 0].set_xlabel('Photo Count')
   axs[0, 0].set_ylabel('')  # limited space
 
-  # 2. Histogram of top 15 lens_model
+  # 2. Histogram of top 15 lens_model (non-phone)
   top_lenses = non_phone_df['lens_model'].value_counts(ascending=True).tail(15)
   top_lenses.plot(kind='barh', ax=axs[0, 1])
-  axs[0, 1].set_title('Top 15 Lens Models (non-phone)')
+  axs[0, 1].set_title('Top 15 Lens Models (excl. phones)')
   axs[0, 1].set_xlabel('Photo Count')
   axs[0, 1].set_ylabel('')  # limited space
 
-  # 3. Histogram of focal length
-  non_phone_df['focal_length'] = non_phone_df['focal_length_x100'] / 100.0
-  non_phone_df['focal_length'].plot.hist(bins=30, ax=axs[1, 0])
-  axs[1, 0].set_title('Focal Length (non-phone)')
+  # 3. Histogram of focal length (non-phone)
+  non_phone_df['focal_length_35_equiv'] = non_phone_df.apply(convert_focal_length, axis=1)
+  non_phone_df['focal_length_35_equiv'].plot.hist(bins=50, ax=axs[1, 0])
+  axs[1, 0].set_title('Focal Length - 35mm equivalent (excl. phones)')
   axs[1, 0].set_xlabel('Focal Length')
   axs[1, 0].set_ylabel('Count')
 
-  # 4. Histogram of ISO
+  # 4. Histogram of ISO (non-phone)
   low_iso = non_phone_df[non_phone_df['iso'] <= 3200]
   low_iso['iso'].plot.hist(bins=40, ax=axs[1, 1])
-  axs[1, 1].set_title('ISO 0~3200 (non-phone)')
+  axs[1, 1].set_title('ISO 0~3200 (excl. phones)')
   axs[1, 1].set_xlabel('ISO')
   axs[1, 1].set_ylabel('Count')
 
@@ -138,13 +150,13 @@ def plot(df):
   axs[2, 0].set_yscale('log')
   axs[2, 0].legend(loc='upper right', bbox_to_anchor=(-0.08, 1), ncol=1)
 
-  # 6. Trend of counting over time by lens_model
+  # 6. Trend of counting over time by lens_model (non-phone)
   non_phone_df.set_index('date_original', inplace=True)
   top_10_lens = non_phone_df['lens_model'].value_counts().head(10).index
   monthly_counts = non_phone_df.groupby([pd.Grouper(freq='M'), 'lens_model']).size().unstack(fill_value=0)
   monthly_counts = monthly_counts[top_10_lens]
   monthly_counts.plot.line(ax=axs[2, 1], linewidth=0.7)
-  axs[2, 1].set_title('Top 10 Lens over Time (non-phone)')
+  axs[2, 1].set_title('Top 10 Lens over Time (excl. phones)')
   axs[2, 1].set_xlabel('Date')
   axs[2, 1].set_ylabel('')  # Save screen estate.
   axs[2, 1].set_yscale('log')
@@ -173,6 +185,7 @@ def main(cached: bool) -> None:
   df = pd.DataFrame(metadata, columns=["date_original", "maker", "camera_model", "lens_model", "aperture", "focal_length_x100", "iso"])
   print(df)
   plot(df)
+
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()
