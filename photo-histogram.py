@@ -119,7 +119,7 @@ def plot(df):
   axs[1, 0].set_ylabel('Count')
 
   # 4. Line plot of iso
-  df['iso'].value_counts().sort_index().plot(kind='barh', ax=axs[1, 1])
+  df['iso'].plot.hist(bins=50, ax=axs[1, 1])
   axs[1, 1].set_title('ISO')
   axs[1, 1].set_xlabel('ISO')
   axs[1, 1].set_ylabel('Count')
