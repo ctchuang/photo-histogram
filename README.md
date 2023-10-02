@@ -25,8 +25,11 @@ $ pip install -r requirements.txt
 $ python photo-histogram.py
 ```
 
-Mac OS may ask you to grant access of your Apple Photo Library to the
-Terminal app.
+Remarks:
+- Mac OS may ask you to grant access of your Apple Photo Library to
+  the Terminal app.
+- If the content is too large to fit into the screen, enter full
+  screen. You can also save the image.
 
 ![Sample Image](image/histogram.png)
 
