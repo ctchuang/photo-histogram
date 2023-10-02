@@ -94,7 +94,7 @@ def plot(df):
   df['camera_with_maker'] = df['maker'] + ' ' + df['camera_model']
 
   # Create a single figure with 3 rows and 2 columns of subplots
-  fig, axs = plt.subplots(3, 2, figsize=(15, 30))
+  fig, axs = plt.subplots(3, 2, figsize=(90, 90))
 
   # 1. Histogram of top 15 camera_model (prefixed with 'maker' name)
   top_cameras = df['camera_with_maker'].value_counts(ascending=True).tail(15)
@@ -112,13 +112,13 @@ def plot(df):
 
   # 3. Line plot of focal_length_x100
   df['focal_length_x100'].value_counts().sort_index().plot(kind='barh', ax=axs[1, 0])
-  axs[1, 0].set_title('Focal Length Trend')
+  axs[1, 0].set_title('Focal Length')
   axs[1, 0].set_xlabel('Focal Length (x100)')
   axs[1, 0].set_ylabel('Count')
 
   # 4. Line plot of iso
   df['iso'].value_counts().sort_index().plot(kind='barh', ax=axs[1, 1])
-  axs[1, 1].set_title('ISO Trend')
+  axs[1, 1].set_title('ISO')
   axs[1, 1].set_xlabel('ISO')
   axs[1, 1].set_ylabel('Count')
 
@@ -136,6 +136,7 @@ def plot(df):
 
   # Adjust layout to ensure plots do not overlap
   plt.tight_layout()
+  plt.subplots_adjust(wspace=1.0, hspace=0.5, left=0.2, top=0.95)
   plt.show()
 
 
