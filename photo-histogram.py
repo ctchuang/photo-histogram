@@ -146,9 +146,10 @@ def plot(df):
   # 5. Trend of counting over time by camera_model
   df.set_index('date_original', inplace=True)
   top_10_cameras = df['camera_with_maker'].value_counts().head(10).index
-  monthly_counts = df.groupby([pd.Grouper(freq='M'), 'camera_with_maker']).size().unstack(fill_value=0)
-  monthly_counts = monthly_counts[top_10_cameras]
-  monthly_counts.plot.line(ax=axs[2, 0], linewidth=0.7)
+  yearly_counts = df.groupby([pd.Grouper(freq='Y'), 'camera_with_maker']).size().unstack(fill_value=0)
+  yearly_counts = yearly_counts[top_10_cameras]
+  yearly_counts.plot.bar(ax=axs[2, 0], stacked=True)
+  axs[2, 0].set_xticklabels([x.year for x in yearly_counts.index])
   axs[2, 0].set_title('Top 10 Camera Models over Time')
   axs[2, 0].set_xlabel('Date')
   axs[2, 0].set_ylabel('')  # Save screen estate.
@@ -158,9 +159,10 @@ def plot(df):
   # 6. Trend of counting over time by lens_model (non-phone)
   non_phone_df.set_index('date_original', inplace=True)
   top_10_lens = non_phone_df['lens_model'].value_counts().head(10).index
-  monthly_counts = non_phone_df.groupby([pd.Grouper(freq='M'), 'lens_model']).size().unstack(fill_value=0)
-  monthly_counts = monthly_counts[top_10_lens]
-  monthly_counts.plot.line(ax=axs[2, 1], linewidth=0.7)
+  yearly_counts = non_phone_df.groupby([pd.Grouper(freq='Y'), 'lens_model']).size().unstack(fill_value=0)
+  yearly_counts = yearly_counts[top_10_lens]
+  yearly_counts.plot.bar(ax=axs[2, 1], stacked=True)
+  axs[2, 1].set_xticklabels([x.year for x in yearly_counts.index])
   axs[2, 1].set_title('Top 10 Lens over Time (excl. phones)')
   axs[2, 1].set_xlabel('Date')
   axs[2, 1].set_ylabel('')  # Save screen estate.
