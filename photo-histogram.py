@@ -120,8 +120,9 @@ def plot(df):
   axs[1, 0].set_ylabel('Count')
 
   # 4. Histogram of ISO
-  non_phone_df['iso'].plot.hist(bins=30, ax=axs[1, 1])
-  axs[1, 1].set_title('ISO (non-phone)')
+  low_iso = non_phone_df[non_phone_df['iso'] <= 3200]
+  low_iso['iso'].plot.hist(bins=40, ax=axs[1, 1])
+  axs[1, 1].set_title('ISO 0~3200 (non-phone)')
   axs[1, 1].set_xlabel('ISO')
   axs[1, 1].set_ylabel('Count')
 
@@ -133,7 +134,7 @@ def plot(df):
   monthly_counts.plot.line(ax=axs[2, 0])
   axs[2, 0].set_xlabel('Date')
   axs[2, 0].set_ylabel('')  # Save screen estate.
-  axs[2, 0].legend(loc='upper right', bbox_to_anchor=(-0.1, 1), ncol=1)
+  axs[2, 0].legend(loc='upper right', bbox_to_anchor=(-0.08, 1), ncol=1)
 
   # 6. Trend of counting over time by lens_model
   df.groupby(['date_original', 'lens_model']).size().unstack().plot(ax=axs[2, 1])
