@@ -99,36 +99,40 @@ def plot(df):
   # 1. Histogram of top 15 camera_model (prefixed with 'maker' name)
   top_cameras = df['camera_with_maker'].value_counts(ascending=True).tail(15)
   top_cameras.plot(kind='barh', ax=axs[0, 0])
-  axs[0, 0].set_title('Top 15 Camera Model Histogram')
-  axs[0, 0].set_xlabel('Count')
-  axs[0, 0].set_ylabel('Camera Model')
+  axs[0, 0].set_title('Top 15 Camera Models')
+  axs[0, 0].set_xlabel('Photo Count')
+  axs[0, 0].set_ylabel('')  # limited space
 
   # 2. Histogram of top 15 lens_model
   top_lenses = df['lens_model'].value_counts(ascending=True).tail(15)
   top_lenses.plot(kind='barh', ax=axs[0, 1])
-  axs[0, 1].set_title('Top 15 Lens Model Histogram')
-  axs[0, 1].set_xlabel('Count')
-  axs[0, 1].set_ylabel('Lens Model')
+  axs[0, 1].set_title('Top 15 Lens Models')
+  axs[0, 1].set_xlabel('Photo Count')
+  axs[0, 1].set_ylabel('')  # limited space
 
-  # 3. Line plot of focal_length_x100
+  # 3. Histogram of focal length
   df['focal_length'] = df['focal_length_x100'] / 100.0
-  df['focal_length'].plot.hist(bins=40, ax=axs[1, 0])
+  df['focal_length'].plot.hist(bins=30, ax=axs[1, 0])
   # df['focal_length_x100'].value_counts().sort_index().plot(kind='barh', ax=axs[1, 0])
   axs[1, 0].set_title('Focal Length')
   axs[1, 0].set_xlabel('Focal Length')
   axs[1, 0].set_ylabel('Count')
 
-  # 4. Line plot of iso
-  df['iso'].plot.hist(bins=50, ax=axs[1, 1])
+  # 4. Histogram of ISO
+  df['iso'].plot.hist(bins=30, ax=axs[1, 1])
   axs[1, 1].set_title('ISO')
   axs[1, 1].set_xlabel('ISO')
   axs[1, 1].set_ylabel('Count')
 
   # 5. Trend of counting over time by camera_model
-  df.groupby(['date_original', 'camera_with_maker']).size().unstack().plot(ax=axs[2, 0])
-  axs[2, 0].set_title('Count Trend Over Time by Camera Model')
+  df.set_index('date_original', inplace=True)
+  top_10_cameras = df['camera_with_maker'].value_counts().head(10).index
+  monthly_counts = df.groupby([pd.Grouper(freq='M'), 'camera_with_maker']).size().unstack(fill_value=0)
+  monthly_counts = monthly_counts[top_10_cameras]
+  monthly_counts.plot.line(ax=axs[2, 0])
   axs[2, 0].set_xlabel('Date')
-  axs[2, 0].set_ylabel('Count')
+  axs[2, 0].set_ylabel('')  # Save screen estate.
+  axs[2, 0].legend(loc='upper right', bbox_to_anchor=(-0.1, 1), ncol=1)
 
   # 6. Trend of counting over time by lens_model
   df.groupby(['date_original', 'lens_model']).size().unstack().plot(ax=axs[2, 1])
@@ -138,7 +142,7 @@ def plot(df):
 
   # Adjust layout to ensure plots do not overlap
   plt.tight_layout()
-  plt.subplots_adjust(wspace=1.0, hspace=0.5, left=0.2, top=0.95)
+  plt.subplots_adjust(wspace=0.77, hspace=0.43, left=0.17, right=0.99, top=0.96, bottom=0.07)
   plt.show()
 
 
@@ -157,6 +161,7 @@ def main(cached: bool) -> None:
       pickle.dump(metadata, f)
 
   df = pd.DataFrame(metadata, columns=["date_original", "maker", "camera_model", "lens_model", "aperture", "focal_length_x100", "iso"])
+  print(df)
   plot(df)
 
 if __name__ == "__main__":
