@@ -4,6 +4,7 @@ import json
 import os
 import pickle
 import re
+import pandas as pd
 import subprocess
 from typing import List, Tuple
 import matplotlib.pyplot as plt
@@ -89,23 +90,51 @@ def get_exif_metadata(root_path: str) -> List[Tuple[datetime, str, str, str, flo
   return results
 
 
-def plot_histogram(focal_lengths, camera_models):
-  # Plot Focal Length Histogram
-  plt.figure(figsize=(12, 5))
-  plt.subplot(1, 2, 1)
-  plt.hist(focal_lengths, bins=200, edgecolor='k')
-  plt.title('Focal Length Histogram')
-  plt.xlabel('Focal Length (mm)')
-  plt.ylabel('Count')
+def plot(df):
+  df['camera_with_maker'] = df['maker'] + ' ' + df['camera_model']
 
-  # Plot Camera Model Histogram
-  plt.subplot(1, 2, 2)
-  plt.hist(camera_models, bins=100, edgecolor='k')
-  plt.title('Camera Model Histogram')
-  plt.xlabel('Camera Model')
-  plt.xticks(rotation=90)
-  plt.ylabel('Count')
+  # Create a single figure with 3 rows and 2 columns of subplots
+  fig, axs = plt.subplots(3, 2, figsize=(15, 30))
 
+  # 1. Histogram of top 15 camera_model (prefixed with 'maker' name)
+  top_cameras = df['camera_with_maker'].value_counts(ascending=True).tail(15)
+  top_cameras.plot(kind='barh', ax=axs[0, 0])
+  axs[0, 0].set_title('Top 15 Camera Model Histogram')
+  axs[0, 0].set_xlabel('Count')
+  axs[0, 0].set_ylabel('Camera Model')
+
+  # 2. Histogram of top 15 lens_model
+  top_lenses = df['lens_model'].value_counts(ascending=True).tail(15)
+  top_lenses.plot(kind='barh', ax=axs[0, 1])
+  axs[0, 1].set_title('Top 15 Lens Model Histogram')
+  axs[0, 1].set_xlabel('Count')
+  axs[0, 1].set_ylabel('Lens Model')
+
+  # 3. Line plot of focal_length_x100
+  df['focal_length_x100'].value_counts().sort_index().plot(kind='barh', ax=axs[1, 0])
+  axs[1, 0].set_title('Focal Length Trend')
+  axs[1, 0].set_xlabel('Focal Length (x100)')
+  axs[1, 0].set_ylabel('Count')
+
+  # 4. Line plot of iso
+  df['iso'].value_counts().sort_index().plot(kind='barh', ax=axs[1, 1])
+  axs[1, 1].set_title('ISO Trend')
+  axs[1, 1].set_xlabel('ISO')
+  axs[1, 1].set_ylabel('Count')
+
+  # 5. Trend of counting over time by camera_model
+  df.groupby(['date_original', 'camera_with_maker']).size().unstack().plot(ax=axs[2, 0])
+  axs[2, 0].set_title('Count Trend Over Time by Camera Model')
+  axs[2, 0].set_xlabel('Date')
+  axs[2, 0].set_ylabel('Count')
+
+  # 6. Trend of counting over time by lens_model
+  df.groupby(['date_original', 'lens_model']).size().unstack().plot(ax=axs[2, 1])
+  axs[2, 1].set_title('Count Trend Over Time by Lens Model')
+  axs[2, 1].set_xlabel('Date')
+  axs[2, 1].set_ylabel('Count')
+
+  # Adjust layout to ensure plots do not overlap
   plt.tight_layout()
   plt.show()
 
@@ -124,8 +153,8 @@ def main(cached: bool) -> None:
     with open(_CACHE_DB, 'wb') as f:
       pickle.dump(metadata, f)
 
-  # plot_histogram(focal_lengths, camera_models)
-
+  df = pd.DataFrame(metadata, columns=["date_original", "maker", "camera_model", "lens_model", "aperture", "focal_length_x100", "iso"])
+  plot(df)
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()
