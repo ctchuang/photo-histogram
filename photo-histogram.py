@@ -111,10 +111,11 @@ def plot(df):
   axs[0, 1].set_ylabel('Lens Model')
 
   # 3. Line plot of focal_length_x100
-  df['focal_length_x100'].plot.hist(bins=100, ax=axs[1, 0])
+  df['focal_length'] = df['focal_length_x100'] / 100.0
+  df['focal_length'].plot.hist(bins=40, ax=axs[1, 0])
   # df['focal_length_x100'].value_counts().sort_index().plot(kind='barh', ax=axs[1, 0])
   axs[1, 0].set_title('Focal Length')
-  axs[1, 0].set_xlabel('Focal Length (x100)')
+  axs[1, 0].set_xlabel('Focal Length')
   axs[1, 0].set_ylabel('Count')
 
   # 4. Line plot of iso
