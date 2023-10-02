@@ -8,6 +8,7 @@ import pandas as pd
 import subprocess
 from typing import List, Tuple
 import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
 
 
 _PHOTO_LIBRARY_PATH = os.path.expanduser('~/Pictures/Photos Library.photoslibrary/originals/')
@@ -130,6 +131,8 @@ def plot(df):
   axs[1, 0].set_title('Focal Length - 35mm equivalent (excl. phones)')
   axs[1, 0].set_xlabel('Focal Length')
   axs[1, 0].set_ylabel('Count')
+  axs[1, 0].xaxis.set_major_locator(ticker.FixedLocator([24, 35, 50, 85, 135, 200]))
+  axs[1, 0].set_xticklabels(axs[1, 0].get_xticks(), rotation=45)
 
   # 4. Histogram of ISO (non-phone)
   low_iso = non_phone_df[non_phone_df['iso'] <= 3200]
