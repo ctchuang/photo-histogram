@@ -92,9 +92,11 @@ def get_exif_metadata(root_path: str) -> List[Tuple[datetime, str, str, str, flo
 
 def plot(df):
   df['camera_with_maker'] = df['maker'] + ' ' + df['camera_model']
+  non_phone_df = df[~df['camera_with_maker'].str.contains(r'(phone|pad|pixel)', case=False,
+                                                          na=False, regex=True)]
 
   # Create a single figure with 3 rows and 2 columns of subplots
-  fig, axs = plt.subplots(3, 2, figsize=(90, 90))
+  fig, axs = plt.subplots(3, 2, figsize=(40, 25))
 
   # 1. Histogram of top 15 camera_model (prefixed with 'maker' name)
   top_cameras = df['camera_with_maker'].value_counts(ascending=True).tail(15)
@@ -104,23 +106,22 @@ def plot(df):
   axs[0, 0].set_ylabel('')  # limited space
 
   # 2. Histogram of top 15 lens_model
-  top_lenses = df['lens_model'].value_counts(ascending=True).tail(15)
+  top_lenses = non_phone_df['lens_model'].value_counts(ascending=True).tail(15)
   top_lenses.plot(kind='barh', ax=axs[0, 1])
-  axs[0, 1].set_title('Top 15 Lens Models')
+  axs[0, 1].set_title('Top 15 Lens Models (non-phone)')
   axs[0, 1].set_xlabel('Photo Count')
   axs[0, 1].set_ylabel('')  # limited space
 
   # 3. Histogram of focal length
-  df['focal_length'] = df['focal_length_x100'] / 100.0
-  df['focal_length'].plot.hist(bins=30, ax=axs[1, 0])
-  # df['focal_length_x100'].value_counts().sort_index().plot(kind='barh', ax=axs[1, 0])
-  axs[1, 0].set_title('Focal Length')
+  non_phone_df['focal_length'] = non_phone_df['focal_length_x100'] / 100.0
+  non_phone_df['focal_length'].plot.hist(bins=30, ax=axs[1, 0])
+  axs[1, 0].set_title('Focal Length (non-phone)')
   axs[1, 0].set_xlabel('Focal Length')
   axs[1, 0].set_ylabel('Count')
 
   # 4. Histogram of ISO
-  df['iso'].plot.hist(bins=30, ax=axs[1, 1])
-  axs[1, 1].set_title('ISO')
+  non_phone_df['iso'].plot.hist(bins=30, ax=axs[1, 1])
+  axs[1, 1].set_title('ISO (non-phone)')
   axs[1, 1].set_xlabel('ISO')
   axs[1, 1].set_ylabel('Count')
 
