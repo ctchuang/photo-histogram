@@ -111,7 +111,8 @@ def plot(df):
   axs[0, 1].set_ylabel('Lens Model')
 
   # 3. Line plot of focal_length_x100
-  df['focal_length_x100'].value_counts().sort_index().plot(kind='barh', ax=axs[1, 0])
+  df['focal_length_x100'].plot.hist(bins=100, ax=axs[1, 0])
+  # df['focal_length_x100'].value_counts().sort_index().plot(kind='barh', ax=axs[1, 0])
   axs[1, 0].set_title('Focal Length')
   axs[1, 0].set_xlabel('Focal Length (x100)')
   axs[1, 0].set_ylabel('Count')
@@ -136,7 +137,7 @@ def plot(df):
 
   # Adjust layout to ensure plots do not overlap
   plt.tight_layout()
-  plt.subplots_adjust(wspace=1.0, hspace=0.5, left=0.2, top=0.95)
+  plt.subplots_adjust(wspace=1.0, hspace=0.5, left=0.2)
   plt.show()
 
 
