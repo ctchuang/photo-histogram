@@ -138,7 +138,7 @@ def plot(df):
 
   # Adjust layout to ensure plots do not overlap
   plt.tight_layout()
-  plt.subplots_adjust(wspace=1.0, hspace=0.5, left=0.2)
+  plt.subplots_adjust(wspace=1.0, hspace=0.5, left=0.2, top=0.95)
   plt.show()
 
 
