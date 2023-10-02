@@ -131,8 +131,8 @@ def plot(df):
   axs[1, 0].set_title('Focal Length - 35mm equivalent (excl. phones)')
   axs[1, 0].set_xlabel('Focal Length')
   axs[1, 0].set_ylabel('Count')
-  axs[1, 0].xaxis.set_major_locator(ticker.FixedLocator([24, 35, 50, 85, 135, 200]))
-  axs[1, 0].set_xticklabels(axs[1, 0].get_xticks(), rotation=45)
+  axs[1, 0].xaxis.set_major_locator(ticker.FixedLocator([16, 24, 35, 50, 70, 85, 135, 200]))
+  axs[1, 0].set_xticklabels(axs[1, 0].get_xticks(), rotation=90)
 
   # 4. Histogram of ISO (non-phone)
   low_iso = non_phone_df[non_phone_df['iso'] <= 3200]
