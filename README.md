@@ -3,15 +3,11 @@ Statistics of photos in Apple Photo on Mac OS
 
 # Usage
 
-1. In Apple Photo, you may need to download Originals. 
+1. Install [Homebrew](https://brew.sh)
 
-   Apple Photo -> Settings -> iCloud tab -> Select 'Download and Keep Originals'.
+2. Install [miniconda](https://formulae.brew.sh/cask/miniconda) with Homebrew
 
-2. Install [Homebrew](https://brew.sh)
-
-3. Install [miniconda](https://formulae.brew.sh/cask/miniconda) with Homebrew
-
-4. Install required packages
+3. Install required packages
 
 ```
 $ brew install exiftool
@@ -19,7 +15,7 @@ $ cd [path-to-this]
 $ pip install -r requirements.txt
 ```
 
-5. Run it
+4. Run it
 
 ```
 $ python photo-histogram.py
