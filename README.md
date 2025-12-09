@@ -11,6 +11,11 @@ Statistics of photos in Apple Photo on Mac OS
 
 ```
 $ brew install exiftool
+
+$ conda create --name histogram
+$ conda activate histogram
+$ conda install pip
+
 $ cd [path-to-this]
 $ pip install -r requirements.txt
 ```
